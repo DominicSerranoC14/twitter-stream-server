@@ -56,8 +56,8 @@ managerIO.on('connection', (socket) => {
 
     // If there is currently a stream open
     if (state.stream !== null) {
-        console.log('New worker has connected', socket.id);
-        stream.on('data', (data) => {
+        console.log('New client socket connected', socket.id);
+        state.stream.on('data', (data) => {
             statusEvent(data, socket);
         });
 
@@ -67,6 +67,6 @@ managerIO.on('connection', (socket) => {
     }
 
     socket.on('disconnect', () => {
-        console.log(`Manager disconnected from worker: worker id ${socket.id}`);
+        console.log(`Client disconnected from server: ${socket.id}`);
     });
 });
