@@ -17,7 +17,7 @@ let isActive = false;
 
 const statusEvent = (data, socket) => {
     console.log('Sending data to client', socket.id);
-    managerIO.to('main-stream').emit('worker-status', data);
+    managerIO.to('main-stream').emit('received-status', data);
     timer.seconds = 0;
 };
 
@@ -34,7 +34,7 @@ managerIO.on('connection', (socket) => {
     managerIO.to('main-stream').emit('stream-active', isActive);
 
     // This will only send data to the client / worker sockets who have initiated the stream
-    socket.on('start-client-stream', () => {
+    socket.on('start-stream', () => {
         // Do not start a stream if there currently is one
         if (state.stream !== null) {
             isActive = true;
