@@ -16,7 +16,7 @@ const formatStatus = require('./manager/formatStatus.js');
 let isActive = false;
 
 const statusEvent = (data, socket) => {
-    console.log('Sending data to client', socket.id);
+    console.log('Sending data to room');
     managerIO.to('main-stream').emit('received-status', formatStatus(data));
     timer.seconds = 0;
 };
@@ -25,7 +25,7 @@ const statusEvent = (data, socket) => {
 server.listen(PORT, () => console.log(`Listening on port ${PORT}`));
 
 managerIO.on('connection', (socket) => {
-    console.log(`Server connected to client: ${socket.id}`);
+    console.log(`Client connected to server: ${socket.id}`);
 
     // Add newly connected socket to a room
     socket.join('main-stream');
@@ -55,6 +55,8 @@ managerIO.on('connection', (socket) => {
         });
 
         state.stream.on('end', () => {
+            isActive = false;
+            managerIO.to('main-stream').emit('stream-active', isActive);
             managerIO.to('main-stream').emit('stream-closed');
         });
     });
