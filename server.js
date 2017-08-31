@@ -7,53 +7,66 @@ const app = express();
 const server = Server(app);
 const managerIO = socketio(server);
 const PORT = process.env.PORT || 3000;
-const { startStream } = require('./stream/start-stream.js');
-const timer = require('./stream/seconds.js');
-const state = require('./stream/streamState.js');
+const { startStream } = require('./manager/start-stream.js');
+const timer = require('./manager/seconds.js');
+const state = require('./manager/streamState.js');
+const formatStatus = require('./manager/formatStatus.js');
+
+// Move to module
+let isActive = false;
 
 const statusEvent = (data, socket) => {
-    console.log('Sending data to worker', socket.id);
-    socket.emit('worker-status', data);
+    console.log('Sending data to client', socket.id);
+    managerIO.to('main-stream').emit('worker-status', data);
     timer.seconds = 0;
 };
 
 // // Server is Listening
 server.listen(PORT, () => console.log(`Listening on port ${PORT}`));
 
-managerIO.on('connection', (workerSocket) => {
-    console.log(`Manager connected to the worker: worker id ${workerSocket.id}`);
+managerIO.on('connection', (socket) => {
+    console.log(`Server connected to client: ${socket.id}`);
+
+    // Add newly connected socket to a room
+    socket.join('main-stream');
+
+    // Tell each client that there is a stream active and disable the stream button
+    managerIO.to('main-stream').emit('stream-active', isActive);
 
     // This will only send data to the client / worker sockets who have initiated the stream
-    workerSocket.on('start-client-stream', () => {
+    socket.on('start-client-stream', () => {
         // Do not start a stream if there currently is one
         if (state.stream !== null) {
-            workerSocket.emit('stream-active', true);
+            isActive = true;
+            socket.emit('stream-active', isActive);
             return;
         }
 
         // Start the stream and emit the data as it is received
-        startStream(workerSocket, managerIO);
+        isActive = true;
+        managerIO.to('main-stream').emit('stream-active', isActive);
+        startStream(socket, managerIO);
         state.stream.on('data', (data) => {
-            // Do no emit the data to a workerSocket that is no longer connected
-            if (workerSocket.connected) {
-                statusEvent(data, workerSocket);
+            // Do no emit the data to a socket that is no longer connected
+            if (socket.connected) {
+                statusEvent(data, socket);
             }
         });
     });
 
     // If there is currently a stream open
     if (state.stream !== null) {
-        console.log('New worker has connected', workerSocket.id);
+        console.log('New worker has connected', socket.id);
         stream.on('data', (data) => {
-            statusEvent(data, workerSocket);
+            statusEvent(data, socket);
         });
 
         state.stream.on('end', () => {
-            workerSocket.emit('stream-closed');
+            socket.emit('stream-closed');
         });
     }
 
-    workerSocket.on('disconnect', () => {
-        console.log(`Manager disconnected from worker: worker id ${workerSocket.id}`);
+    socket.on('disconnect', () => {
+        console.log(`Manager disconnected from worker: worker id ${socket.id}`);
     });
 });
