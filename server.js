@@ -53,18 +53,12 @@ managerIO.on('connection', (socket) => {
                 statusEvent(data, socket);
             }
         });
-    });
-
-    // If there is currently a stream open
-    if (state.stream !== null) {
-        console.log('New client socket connected', socket.id);
-        state.stream.on('data', (data) => {
-            statusEvent(data, socket);
-        });
 
         state.stream.on('end', () => {
-            socket.emit('stream-closed');
+            managerIO.to('main-stream').emit('stream-closed');
         });
+    });
+
     }
 
     socket.on('disconnect', () => {
