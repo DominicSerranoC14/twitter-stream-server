@@ -3,7 +3,7 @@
 const rp = require('request-promise');
 
 const options = {
-    uri: 'http://localhost:3000/ping-dyno',
+    uri: 'https://stream-manager.herokuapp.com/ping-dyno',
     method: 'GET',
 };
 
