@@ -17,7 +17,7 @@ let isActive = false;
 
 const statusEvent = (data, socket) => {
     console.log('Sending data to client', socket.id);
-    managerIO.to('main-stream').emit('received-status', data);
+    managerIO.to('main-stream').emit('received-status', formatStatus(data));
     timer.seconds = 0;
 };
 
@@ -46,6 +46,7 @@ managerIO.on('connection', (socket) => {
         isActive = true;
         managerIO.to('main-stream').emit('stream-active', isActive);
         startStream(socket, managerIO);
+
         state.stream.on('data', (data) => {
             // Do no emit the data to a socket that is no longer connected
             if (socket.connected) {
