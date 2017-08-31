@@ -21,6 +21,12 @@ const statusEvent = (data, socket) => {
     timer.seconds = 0;
 };
 
+// This route is to keep the dyno from idling during usage
+app.get('/ping-dyno', (req, res) => {
+    console.log('Dyno pinged!');
+    res.end();
+});
+
 // // Server is Listening
 server.listen(PORT, () => console.log(`Listening on port ${PORT}`));
 
@@ -48,10 +54,7 @@ managerIO.on('connection', (socket) => {
         startStream(socket, managerIO);
 
         state.stream.on('data', (data) => {
-            // Do no emit the data to a socket that is no longer connected
-            if (socket.connected) {
-                statusEvent(data, socket);
-            }
+            statusEvent(data, socket);
         });
 
         state.stream.on('end', () => {
