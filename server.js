@@ -59,8 +59,6 @@ managerIO.on('connection', (socket) => {
         });
     });
 
-    }
-
     socket.on('disconnect', () => {
         console.log(`Client disconnected from server: ${socket.id}`);
     });
