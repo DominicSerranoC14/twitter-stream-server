@@ -54,6 +54,9 @@ managerIO.on('connection', (socket) => {
         startStream(socket, managerIO);
 
         state.stream.on('data', (data) => {
+            // TODO check the room to see if there are any sockets connected
+            // console.log(managerIO.sockets.adapter.rooms['main-stream']);
+            // TODO if there are no sockets in the room it may not emit, need to test
             statusEvent(data, socket);
         });
 

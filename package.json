@@ -5,7 +5,9 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "deploy": "git push heroku master"
+    "deploy": "git push heroku master",
+    "restart": "heroku restart",
+    "dyno-hours": "heroku ps -a stream-manager"
   },
   "engines": {
     "node": "7.10.0"
