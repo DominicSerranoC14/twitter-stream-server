@@ -5,6 +5,7 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
+    "dev": "NODE_ENV=development node_modules/nodemon/bin/nodemon.js server.js",
     "deploy": "git push heroku master",
     "restart": "heroku restart",
     "dyno-hours": "heroku ps -a stream-manager"
@@ -16,9 +17,13 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "dotenv": "^4.0.0",
     "express": "^4.15.4",
     "request-promise": "^4.2.1",
     "socket.io": "^2.0.3",
     "twitter": "^1.7.1"
+  },
+  "devDependencies": {
+    "nodemon": "^1.14.3"
   }
 }

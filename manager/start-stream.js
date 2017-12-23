@@ -31,11 +31,11 @@ const startStream = (socket, manager) => {
     });
 
     state.stream.on('end', (response) => {
-        console.log('Stream has ended', `${timer.seconds} seconds`);
         state.stream = null;
         clearInterval(secondsInterval);
         // Emit a 'stream-closed' event to the worker-socket connected
         socket.emit('stream-closed');
+        console.log('Stream has ended', `${timer.seconds} seconds`);
     });
 };
 
