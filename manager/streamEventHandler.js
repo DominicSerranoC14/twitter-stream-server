@@ -12,6 +12,7 @@ const statusEvent = (data, socket, manager) => {
     timer.seconds = 0;
 };
 
+// Can emit to individual socket and the manager with these params
 module.exports = (socket, manager) => {
     // Do not start a stream if there currently is one
     if (state.stream !== null) {
@@ -25,12 +26,12 @@ module.exports = (socket, manager) => {
 
     manager.to('main-stream').emit('stream-active', state.isActive);
 
-    if (process.env.NODE_ENV === 'production') {
-        console.log('Starting production stream...');
-        startStream(socket, manager);
-    } else if (process.env.NODE_ENV === 'development') {
+    if (process.env.NODE_ENV === 'development') {
         console.log('Starting development stream...');
         startDevStream(socket, manager);
+    } else {
+        console.log('Starting production stream...');
+        startStream(socket, manager);
     }
 
     state.stream.on('data', (data) => {
