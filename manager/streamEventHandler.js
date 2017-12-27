@@ -34,6 +34,9 @@ module.exports = (socket, manager) => {
         startStream(socket, manager);
     }
 
+    // Add timestamp to stream object
+    state.options.createdAt = new Date();
+
     state.stream.on('data', (data) => {
         // TODO check the room to see if there are any sockets connected
         // console.log(manager.sockets.adapter.rooms['main-stream']);

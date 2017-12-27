@@ -12,13 +12,19 @@ module.exports = (socket, manager) => {
     // Tell each client that there is a stream active and disable the stream button
     manager.to('main-stream').emit('stream-active', state.isActive);
 
+    // If options exist when a socket joins, send the options and stream start time to the client
+    if (state.options) {
+        socket.emit('stream-options', state.options);
+    }
+
+    // Event listners on the worker socket are set here.
+    // TODO This should be broken out into another module
     socket.on('set-options', (options) => {
         if (state.isActive) {
             socket.emit('user-error', 'You cannot set a streams options after the stream has started.');
             return;
         }
 
-        console.log(options);
         state.options = options;
     });
 
@@ -35,7 +41,12 @@ module.exports = (socket, manager) => {
         if (!state.stream) return;
 
         console.log('Attempting to destroy stream...');
-        state.stream.destroy();
+        // Must check for development, using two different event emitters
+        if (process.env.NODE_ENV === 'development') {
+            state.stream.emit('end');
+        } else {
+            state.stream.destroy();
+        }
     });
 
     socket.on('disconnect', () => {
