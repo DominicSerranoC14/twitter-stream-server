@@ -17,7 +17,7 @@ const generateFakeTweet = () => ({
 const startDevStream = (socket, manager) => {
     state.stream = new EventEmitter();
 
-    // Send ititial tweet after socket listeners have been set up
+    // Send initial tweet after socket listeners have been set up
     setTimeout(() => state.stream.emit('data', generateFakeTweet()), 1000);
 
     const streaming = setInterval(() => 
