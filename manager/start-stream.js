@@ -2,7 +2,7 @@
 
 const Twitter = require('twitter');
 const timer = require('./seconds.js');
-const state = require('./streamState.js');
+const { streams } = require('./streamState.js');
 
 const client = new Twitter({
     consumer_key: process.env.CLIENT_KEY,
@@ -15,9 +15,9 @@ const client = new Twitter({
 // Connects with single socket and will emit to all sockets connected. This will limit many users from connecting.
 // TODO once this is finished, create rooms / single stream channels?
 const startStream = (socket, manager) => {
-    state.stream = client.stream('statuses/filter', state.options);
+    streams[socket.id].stream = client.stream('statuses/filter', streams[socket.id].options);
         
-    return setInterval(() => timer.increment(state.stream), 1000);
+    streams[socket.id].streamInterval = setInterval(() => timer.increment(streams[socket.id].stream), 1000);
 };
 
 module.exports = { startStream };

@@ -1,7 +1,7 @@
 'use strict';
 
 const EventEmitter = require('events');
-const state = require('./streamState.js');
+const { createNewStreamObject, streams } = require('./streamState.js');
 
 const generateFakeTweet = () => ({
     status_id: '12344566', 
@@ -15,13 +15,13 @@ const generateFakeTweet = () => ({
 })
 
 const startDevStream = (socket, manager) => {
-    state.stream = new EventEmitter();
-
+    streams[socket.id].stream = new EventEmitter();
+    
     // Send initial tweet after socket listeners have been set up
-    setTimeout(() => state.stream.emit('data', generateFakeTweet()), 1000);
+    setTimeout(() => streams[socket.id].stream.emit('data', generateFakeTweet()), 1000);
 
-    return setInterval(() => 
-        state.stream.emit('data', generateFakeTweet()), 30000);
+    streams[socket.id].streamInterval = setInterval(() => 
+        streams[socket.id].stream.emit('data', generateFakeTweet()), 30000);
 };
 
 module.exports = { startDevStream };
