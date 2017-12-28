@@ -8,9 +8,9 @@ const server = Server(app);
 const managerIO = socketio(server);
 require('dotenv').config();
 const PORT = process.env.PORT || 3000;
-const initializeManager = require('./manager/initializeManager.js');
+const socketEventHandlers = require('./manager/socketEventHandlers.js');
 
-// This route is to keep the dyno from idling during usage
+// This route is to keep the heroku dyno from idling during usage
 app.get('/ping-dyno', (req, res) => {
     console.log('Dyno pinged!');
     res.end();
@@ -20,5 +20,5 @@ app.get('/ping-dyno', (req, res) => {
 server.listen(PORT, () => console.log(`Listening on port ${PORT}`));
 
 managerIO.on('connection', (socket) => {
-    initializeManager(socket, managerIO);
+    socketEventHandlers(socket, managerIO);
 });

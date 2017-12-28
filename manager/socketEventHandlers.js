@@ -62,5 +62,11 @@ module.exports = (socket, manager) => {
                 streams[socket.id].stream.destroy();
             }            
         }
+
+        // If a socket has a stream object associated with it, but the stream is not active, deleted the stream object
+        if (streams[socket.id] && streams[socket.id].stream === null) {
+            delete streams[socket.id];
+            console.log('Stream object was deleted: ', socket.id);
+        }
     });
 };
