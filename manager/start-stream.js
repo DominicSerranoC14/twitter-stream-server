@@ -16,22 +16,8 @@ const client = new Twitter({
 // TODO once this is finished, create rooms / single stream channels?
 const startStream = (socket, manager) => {
     state.stream = client.stream('statuses/filter', state.options);
-    console.log('Stream started');
-    const secondsInterval = setInterval(() => timer.increment(state.stream), 1000);
-
-    // Log and emit errors to client
-    state.stream.on('error', (error) => {
-        console.log('Error', error);
-        socket.emit('stream-error', error);
-    });
-
-    state.stream.on('end', (response) => {
-        state.stream = null;
-        clearInterval(secondsInterval);
-        // Emit a 'stream-closed' event to the worker-socket connected
-        socket.emit('stream-closed');
-        console.log('Stream has ended', `${timer.seconds} seconds`);
-    });
+        
+    return setInterval(() => timer.increment(state.stream), 1000);
 };
 
 module.exports = { startStream };

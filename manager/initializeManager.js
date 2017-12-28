@@ -13,7 +13,7 @@ module.exports = (socket, manager) => {
     manager.to('main-stream').emit('stream-active', state.isActive);
 
     // If options exist when a socket joins, send the options and stream start time to the client
-    if (state.options) {
+    if (state.options && state.isActive) {
         socket.emit('stream-options', state.options);
     }
 

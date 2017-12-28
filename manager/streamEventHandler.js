@@ -20,19 +20,19 @@ module.exports = (socket, manager) => {
         socket.emit('stream-active', state.isActive);
         return;
     }
-
-    // Start the stream and emit the data as it is received
-    state.isActive = true;
-
-    manager.to('main-stream').emit('stream-active', state.isActive);
-
+    
+    // Start the stream and store the streamInterval to be cleared later
     if (process.env.NODE_ENV === 'development') {
         console.log('Starting development stream...');
-        startDevStream(socket, manager);
+        state.streamInterval = startDevStream(socket, manager);
     } else {
         console.log('Starting production stream...');
-        startStream(socket, manager);
+        state.streamInterval = startStream(socket, manager);
     }
+    
+    // Set the state to active, and create a createdAt time stamp
+    state.isActive = true;
+    manager.to('main-stream').emit('stream-active', state.isActive);
 
     // Add timestamp to stream object
     state.options.createdAt = new Date();
@@ -44,9 +44,22 @@ module.exports = (socket, manager) => {
         statusEvent(data, socket, manager);
     });
 
-    state.stream.on('end', () => {
-        state.isActive = false;
-        manager.to('main-stream').emit('stream-active', state.isActive);
-        manager.to('main-stream').emit('stream-closed');
+    // Log and emit errors to client
+    state.stream.on('error', (error) => {
+        console.log('Error', error);
+        socket.emit('stream-error', error);
+    });
+
+    state.stream.on('end', (response) => {
+        // Clear the counter interval
+        clearInterval(state.streamInterval);
+        // Reset the stream object
+        state.flush();
+        // Reset the client to an inactive state
+        socket.emit('stream-active', state.isActive);
+        // Emit a 'stream-closed' event to the worker-socket connected
+        socket.emit('stream-closed');
+
+        console.log('Stream has ended');
     });
 };   
