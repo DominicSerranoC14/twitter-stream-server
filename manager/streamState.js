@@ -8,7 +8,7 @@ const createNewStreamObject = (socketId) => {
         createdAt: null,
         flush() {
             this.isActive = false;
-            this.options = null;
+            // this.options = null;
             this.stream = null;
             this.streamInterval = null;
         },

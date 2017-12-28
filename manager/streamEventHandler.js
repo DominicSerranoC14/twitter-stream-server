@@ -7,8 +7,8 @@ const timer = require('./seconds.js');
 const formatStatus = require('./formatStatus.js');
 
 const statusEvent = (data, socket, manager) => {
-    console.log('Sending data to room');
-    manager.to(socket.id).emit('received-status', formatStatus(data));
+    console.log('Sending data to: ', socket.id);
+    socket.emit('received-status', formatStatus(data));
     timer.seconds = 0;
 };
 
@@ -25,7 +25,7 @@ module.exports = (socket, manager) => {
     
     // Set the stream to active
     streams[socket.id].isActive = true;
-    manager.to(socket.id).emit('stream-active', streams[socket.id].isActive);
+    socket.emit('stream-active', streams[socket.id].isActive);
     // Give the stream a timestamp to calculate duration on the client
     streams[socket.id].createdAt = new Date();
 
@@ -37,21 +37,24 @@ module.exports = (socket, manager) => {
     // Log and emit errors to client
     streams[socket.id].stream.on('error', (error) => {
         console.log('Error', error);
-        manager.to(socket.id).emit('stream-error', error);
+        socket.emit('stream-error', error);
     });
 
     streams[socket.id].stream.on('end', (response) => {
+        console.log('Stream has closed');
         // Clear the counter interval
         clearInterval(streams[socket.id].streamInterval);
-        // Reset the stream object
+        // Reset the stream object, except for the options object
         streams[socket.id].flush();
         // Reset the client to an inactive state
-        manager.to(socket.id).emit('stream-active', streams[socket.id].isActive);
+        socket.emit('stream-active', streams[socket.id].isActive);
         // Emit a 'stream-closed' event to the worker-socket connected
-        manager.to(socket.id).emit('stream-closed');
-        // Remove stream object from streams collection
-        delete streams[socket.id];        
+        socket.emit('stream-closed');
 
-        console.log('Stream has ended and been removed');
+        // Is socket.connected is false, that means that the socket has disconnected. Delete the stream object
+        if (!socket.connected) {
+            delete streams[socket.id];
+            console.log('Stream object was deleted: ', socket.id);
+        }
     });
 };   
