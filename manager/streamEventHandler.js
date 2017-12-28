@@ -56,9 +56,9 @@ module.exports = (socket, manager) => {
         // Reset the stream object
         state.flush();
         // Reset the client to an inactive state
-        socket.emit('stream-active', state.isActive);
+        manager.to('main-stream').emit('stream-active', state.isActive);
         // Emit a 'stream-closed' event to the worker-socket connected
-        socket.emit('stream-closed');
+        manager.to('main-stream').emit('stream-closed');
 
         console.log('Stream has ended');
     });
