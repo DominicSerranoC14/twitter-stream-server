@@ -20,16 +20,8 @@ const startDevStream = (socket, manager) => {
     // Send initial tweet after socket listeners have been set up
     setTimeout(() => state.stream.emit('data', generateFakeTweet()), 1000);
 
-    const streaming = setInterval(() => 
+    return setInterval(() => 
         state.stream.emit('data', generateFakeTweet()), 30000);
-
-    state.stream.on('end', () => {
-        state.stream = null;
-        clearInterval(streaming);
-        // Emit a 'stream-closed' event to the worker-socket connected
-        socket.emit('stream-closed');
-        console.log('Stream has ended.');
-    });
 };
 
 module.exports = { startDevStream };
